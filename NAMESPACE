@@ -1,0 +1,6 @@
+export(qtext)
+export(getfrom1ka)
+importFrom("admisc", "stopError", "trimstr", "tryCatchWEM")
+importFrom("rvest", "read_html", "html_text")
+importFrom("httr", "GET", "status_code", "content")
+importFrom("openssl", "sha256")
