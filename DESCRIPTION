@@ -1,10 +1,10 @@
 Package: ADP
-Version: 0.1
-Date: 2024-07-25
+Version: 0.2
+Date: 2024-08-07
 Title: DDI Codebook From 1ka
 Authors@R: c(person("Adrian", "Dusa", role = c("aut", "cre"),
                     email = "dusa.adrian@gmail.com"))
 Depends: R (>= 3.5.0)
-Imports: admisc, jsonlite, httr, openssl, rvest
+Imports: admisc, DDIwR, jsonlite, httr, openssl, rvest
 Description: Functions to create a DDI Codebook from 1ka survey (meta)data.
 License: GPL (>= 2)
