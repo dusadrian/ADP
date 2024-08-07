@@ -1,6 +1,8 @@
 export(qtext)
 export(getfrom1ka)
+export(makeCodebook)
 importFrom("admisc", "stopError", "trimstr", "tryCatchWEM")
+importFrom("DDIwR", "convert", "treatPath")
 importFrom("rvest", "read_html", "html_text")
 importFrom("httr", "GET", "status_code", "content")
 importFrom("openssl", "sha256")
