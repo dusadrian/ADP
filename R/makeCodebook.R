@@ -213,7 +213,14 @@ makeCodebook <- function(sav, json, lang = "si") {
 
     for (i in rev(seq(length(varpos)))) {
         if (!is.null(varmap[[i]])) {
-            qstn <- paste("      <qstn ID=\"", qid[varmap[[i]][1]], "\">", result[[varmap[[i]][1]]]$question_text, "</qstn>", sep = "")
+            qstn <- paste(
+                "      <qstn ID=\"", qid[varmap[[i]][1]],
+                "\">\n        <qstnLit xml:lang=\"",
+                lang, "\">",
+                result[[varmap[[i]][1]]]$question_text,
+                "</qstnLit>\n      </qstn>",
+                sep = ""
+            )
             xml <- append(xml, qstn, after = varpos[i])
         }
     }
