@@ -1,4 +1,4 @@
-makeCodebook <- function(sav, json, lang = "si") {
+makeCodebook <- function(sav, json, lang = "sl-SI") {
 
     if (missing(sav)) {
         admisc::stopError("The sav file is required.")
@@ -155,11 +155,28 @@ makeCodebook <- function(sav, json, lang = "si") {
 
     varmap <- lapply(vars, function(x) {
         searchvar <- lapply(result, function(r) {
-            r$var_name == x
+            equal <- r$var_name == x
+            if (any(equal)) {
+                return(equal)
+            }
+
+            return(
+                sapply(
+                    r$var_name,
+                    function(y) {
+                        grepl(paste0("^", y), x)
+                    }
+                )
+            )
         })
 
         if (any(unlist(searchvar))) {
             whas <- which(sapply(searchvar, any))
+            if (length(whas) > 1) {
+                nchars <- nchar(names(whas))
+                whas <- whas[nchars == max(nchars)]
+            }
+
             if (length(whas) == 1) {
                 return(unname(c(whas, which(searchvar[[whas]]))))
             } else {
@@ -167,7 +184,6 @@ makeCodebook <- function(sav, json, lang = "si") {
             }
         }
     })
-
 
     for (i in seq(length(vars))) {
         var_label <- attr(sav[[i]], "label", exact = TRUE)
