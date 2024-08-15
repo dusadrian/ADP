@@ -49,11 +49,16 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
         # predefined
         var_name <- qid[i]
         var_label <- question[i]
+        ivuInstr <- json[[i]]$info
+        if (identical(ivuInstr, "")) {
+            ivuInstr <- NULL
+        }
 
-        values <- labels <- NULL
+        preQTxt <- values <- labels <- NULL
 
         if (length(vrednosti)) {
 
+            # assume a single question with some response categories
             values <- qtext(sapply(vrednosti, function(x) x$variable))
             if (admisc::possibleNumeric(values)) {
                 values <- admisc::asNumeric(values)
@@ -62,11 +67,18 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
             labels <- qtext(sapply(vrednosti, function(x) x$naslov))
 
             if (any(grepl(var_name, values))) {
+                # or a single question with multiple answers
+                # or a single question with some (numeric) inputs
+                # (i.e. min and max)
+
+                preQTxt <- question[i]
                 var_name <- values
                 var_label <- labels
+
                 if (grepl("Multiple answer", type[i])) {
                     values <- 0:1
                     labels <- c("No", "Yes")
+
                 } else {
                     values <- labels <- NULL
                 }
@@ -116,11 +128,13 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
                     sufix,
                     sep = "_"
                 )
-                var_label <- paste(
-                    rep(var_label, each = length(stolpci)),
-                    qtext(sapply(stolpci, function(x) x$naslov)),
-                    sep = ": "
-                )
+                # var_label <- paste(
+                #     rep(var_label, each = length(stolpci)),
+                #     qtext(sapply(stolpci, function(x) x$naslov)),
+                #     sep = ": "
+                # )
+                var_label <- qtext(sapply(stolpci, function(x) x$naslov))
+                preQTxt <- question[i]
             } else {
                 values <- qtext(sapply(stolpci, function(x) x$variable))
                 if (admisc::possibleNumeric(values)) {
@@ -136,8 +150,13 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
             var_label <- question[i]
         }
 
+        if (identical(preQTxt, var_label)) {
+            preQTxt <- NULL
+        }
+
         result[[i]] <- list(
-            question_text = question[i],
+            preQTxt = preQTxt,
+            ivuInstr = ivuInstr,
             var_name = var_name,
             var_label = var_label,
             values = unique(values),
@@ -190,8 +209,8 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
 
         if (is.null(var_label)) {
             # The SPSS variable does not have a label, trying to construct it from the 1ka JSON
-            if (!is.null(varmap[[i]])) {
-                var_label <- result[[varmap[[i]][1]]]$var_label[varmap[[i]][2]]
+            if (!is.null(varmap_i)) {
+                var_label <- result[[varmap_i[1]]]$var_label[varmap_i[2]]
             }
         }
 
@@ -214,8 +233,8 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
             names(value_labels) <- nms
             attr(sav[[i]], "labels") <- value_labels
         }
-
     }
+
 
     tmp <- tempdir()
     DDIwR::convert(
@@ -228,17 +247,58 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
     varpos <- which(grepl("<var ID=", xml))
 
     for (i in rev(seq(length(varpos)))) {
-        if (!is.null(varmap[[i]])) {
-            qstn <- paste(
-                "      <qstn ID=\"", qid[varmap[[i]][1]],
-                "\">\n        <qstnLit xml:lang=\"",
+        varmap_i <- varmap[[i]]
+        preQTxt <- result[[varmap_i[1]]]$preQTxt
+        ivuInstr <- result[[varmap_i[1]]]$ivuInstr
+
+        position <- varpos[i]
+        open_qstn <- paste(
+            "      <qstn ID=\"",
+            qid[varmap_i[1]],
+            "\">",
+            sep = ""
+        )
+
+        xml <- append(xml, open_qstn, after = position)
+        position <- position + 1
+
+        if (!is.null(preQTxt)) {
+            preQTxt <- paste(
+                "        <preQTxt xml:lang=\"",
                 lang, "\">",
-                result[[varmap[[i]][1]]]$question_text,
-                "</qstnLit>\n      </qstn>",
+                preQTxt,
+                "</preQTxt>",
                 sep = ""
             )
-            xml <- append(xml, qstn, after = varpos[i])
+
+            xml <- append(xml, preQTxt, after = position)
+            position <- position + 1
         }
+
+        qstn <- paste(
+            "        <qstnLit xml:lang=\"",
+            lang, "\">",
+            result[[varmap_i[1]]]$var_label[varmap_i[2]],
+            "</qstnLit>",
+            sep = ""
+        )
+
+        xml <- append(xml, qstn, after = position)
+        position <- position + 1
+
+        if (!is.null(ivuInstr)) {
+            ivuInstr <- paste(
+                "        <ivuInstr xml:lang=\"",
+                lang, "\">",
+                ivuInstr,
+                "</ivuInstr>",
+                sep = ""
+            )
+            xml <- append(xml, ivuInstr, after = position)
+            position <- position + 1
+        }
+
+        xml <- append(xml, "      </qstn>", after = position)
     }
 
     writeLines(xml, file.path(
