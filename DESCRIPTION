@@ -1,6 +1,6 @@
 Package: ADP
-Version: 0.5
-Date: 2024-08-15
+Version: 0.6
+Date: 2024-08-19
 Title: DDI Codebook From 1ka
 Authors@R: c(person("Adrian", "Dusa", role = c("aut", "cre"),
                     email = "dusa.adrian@gmail.com"))
