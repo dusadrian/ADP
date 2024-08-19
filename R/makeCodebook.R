@@ -183,7 +183,11 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
                 sapply(
                     r$var_name,
                     function(y) {
-                        grepl(paste0("^", y), x)
+                        tc <- admisc::tryCatchWEM(result <- grepl(paste0("^", y), x))
+                        if (!is.null(tc)) {
+                            return(FALSE)
+                        }
+                        return(result)
                     }
                 )
             )
