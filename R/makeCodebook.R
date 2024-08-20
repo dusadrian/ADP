@@ -219,6 +219,7 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
         var_label <- attr(sav[[i]], "label", exact = TRUE)
 
         if (is.null(var_label)) {
+            varmap_i <- varmap[[i]]
             # The SPSS variable does not have a label, trying to construct it from the 1ka JSON
             if (!is.null(varmap_i)) {
                 var_label <- result[[varmap_i[1]]]$var_label[varmap_i[2]]
@@ -257,8 +258,15 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
     xml <- readLines(file.path(tmp, "temp.xml"))
     varpos <- which(grepl("<var ID=", xml))
 
+    noquestions <- c()
+
     for (i in rev(seq(length(varpos)))) {
         varmap_i <- varmap[[i]]
+        if (is.null(varmap_i)) {
+            noquestions <- c(noquestions, vars[i])
+            next
+        }
+
         preQTxt <- result[[varmap_i[1]]]$preQTxt
         ivuInstr <- result[[varmap_i[1]]]$ivuInstr
 
@@ -316,4 +324,21 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
         tp_file$completePath,
         paste(tp_file$filenames[1], "xml", sep = ".")
     ))
+
+    if (length(noquestions) > 0) {
+        message(
+            paste(
+                sprintf(
+                    "The following variable%s not have an associated question:",
+                    ifelse(
+                        length(noquestions) == 1,
+                        " does",
+                        "s do"
+                    )
+                ),
+                paste(rev(noquestions), collapse = ", "),
+                sep = "\n"
+            )
+        )
+    }
 }
