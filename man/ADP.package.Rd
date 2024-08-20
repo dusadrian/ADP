@@ -18,8 +18,8 @@ Function to export data in Excel, SPSS and Stata.
     \tabular{ll}{
     Package: \tab ADP\cr
     Type:    \tab Package\cr
-    Version: \tab 0.6\cr
-    Date:    \tab 2024-08-19\cr
+    Version: \tab 0.7\cr
+    Date:    \tab 2024-08-20\cr
     License: \tab GPL (>= 2)\cr
     }
 }
