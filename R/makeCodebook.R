@@ -213,6 +213,8 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
                 return(NULL)
             }
         }
+
+        return(NULL)
     })
 
     for (i in seq(length(vars))) {
@@ -259,6 +261,7 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
     varpos <- which(grepl("<var ID=", xml))
 
     noquestions <- c()
+    novariables <- c()
 
     for (i in rev(seq(length(varpos)))) {
         varmap_i <- varmap[[i]]
@@ -337,6 +340,28 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
                     )
                 ),
                 paste(rev(noquestions), collapse = ", "),
+                sep = "\n"
+            )
+        )
+    }
+
+    novariables <- setdiff(
+        seq(length(json)),
+        sort(unique(unlist(lapply(varmap, "[[", 1))))
+    )
+
+    if (length(novariables) > 0) {
+        message(
+            paste(
+                sprintf(
+                    "The following question%s not have an associated variable(s):",
+                    ifelse(
+                        length(novariables) == 1,
+                        " does",
+                        "s do"
+                    )
+                ),
+                paste(rev(qid[novariables]), collapse = ", "),
                 sep = "\n"
             )
         )
