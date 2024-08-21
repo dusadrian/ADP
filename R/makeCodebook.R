@@ -354,14 +354,14 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
         message(
             paste(
                 sprintf(
-                    "The following question%s not have an associated variable(s):",
+                    "The following question%s not have associated variables:",
                     ifelse(
                         length(novariables) == 1,
                         " does",
                         "s do"
                     )
                 ),
-                paste(rev(qid[novariables]), collapse = ", "),
+                paste(qid[novariables], collapse = ", "),
                 sep = "\n"
             )
         )
