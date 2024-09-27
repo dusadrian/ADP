@@ -1,4 +1,4 @@
-makeCodebook <- function(sav, json, lang = "sl-SI") {
+makeCodebook <- function(sav, json, lang = "sl-SI", fileid = "") {
 
     if (missing(sav)) {
         admisc::stopError("The sav file is required.")
@@ -253,7 +253,8 @@ makeCodebook <- function(sav, json, lang = "sl-SI") {
     DDIwR::convert(
         sav,
         to = file.path(tmp, "temp.xml"),
-        embed = FALSE, xmlang = lang, monolang = FALSE
+        embed = FALSE, xmlang = lang, monolang = FALSE,
+        varIDs = paste("V", seq(ncol(sav)), sep = "")
     )
 
     xml <- readLines(file.path(tmp, "temp.xml"))
