@@ -9,13 +9,14 @@ Create a DDI Codebook from an SPSS sav file and a 1ka JSON file.
 }
 
 \usage{
-makeCodebook(sav, json, lang = "si")
+makeCodebook(sav, json, lang = "si", fileid = NULL)
 }
 
 \arguments{
   \item{sav}{String, path to the SPSS file.}
   \item{json}{List, the R object containing the JSON file.}
   \item{lang}{String, the language of the DDI Codebook file.}
+  \item{fileid}{File ID, for the fileDscr element.}
 }
 
 \examples{
